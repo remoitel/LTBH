@@ -23,5 +23,3 @@ showtext_auto()
 
 
 #IL <- readClipboard()
-
-library(GWalkR)

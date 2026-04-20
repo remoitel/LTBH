@@ -1,6 +1,14 @@
+library(ggh4x)
+batch_levels <- c("LTBH0003XX", "LTBH0025ZX", "21290T0006", "TX290T9011", "22290T0001")
+# Assign colors to two groups — adjust logic to your grouping
+batch_colors <- ifelse(batch_levels %in% c("LTBH0003XX", "LTBH0025ZX"), "#e1c3cd", "#96d7d2")
+strip_x <- strip_themed(
+  background_x = elem_list_rect(fill = batch_colors)
+)
+
 
 ltbh_long %>% 
-  filter(analy_param == "Assay THFS" ) %>% 
+  filter(analy_param == "Assay THFS+BSA" ) %>% 
   # filter(str_detect(Batch,"BMBD000")) %>% 
   filter(!is.na(value)) %>% 
   
@@ -12,10 +20,10 @@ ltbh_long %>%
   geom_hline(yintercept=77,linetype= 1, col = "orange", linewidth=0.4)+
   # geom_hline(yintercept=100,linetype= 0)+
   # scale_y_continuous(breaks = seq(95,105, by=1)) + 
-  facet_grid(analy_param ~ Batch,  scales="free_y")+
+  facet_grid2(analy_param ~ factor(Batch, batch_levels),scales="free_y", strip = strip_x )+
   xlab("Months")+
   ylab("% w/w") +
-  theme(strip.text.x = element_text(family="Merck",  size = 14, colour = "#503291"),
+  theme(strip.text.x = element_text(family="Merck",  size = 12, colour = "#503291"),
         strip.text.y = element_text(family="Merck",  size = 12, colour = "#503291"),
         axis.text.x = element_text(size = 10, angle=0),
         axis.text.y = element_text(size = 12, angle=0),
@@ -77,6 +85,44 @@ ltbh_long %>%
 
 ggsave("ltbh_assay_stack.svg",  last_plot(),units = "cm", width = 20, height = 10)
 
+#-------- Assay not stacked
+
+  ltbh_long %>% 
+  filter(analy_param == "THFS" ) %>% 
+  filter(!is.na(value)) %>% 
+  
+  ggplot( aes(month, value, color=temp)) + 
+  geom_smooth(data=ltbh_long  %>% filter(analy_param=="THFS")%>% filter(temp == "25°C"),
+              method=lm ,color="transparent", fill="grey70", se=TRUE, formula = y ~ x, level=0.95, fullrange =T) +
+    geom_line(linewidth = 2, alpha=0.7)+
+    geom_point(size = 3, shape=16, color="black", alpha=0.2) +
+    scale_x_continuous(expand=c(0,0), limits=c(-1,37),breaks = c(0,3,6,9,12,18,24,36)) + 
+  # geom_hline(yintercept=95,linetype= 2, col = "orange3", linewidth=0.8)+
+  geom_hline(yintercept=66,linetype= 2, col = "orange3", linewidth=0.8)+
+  geom_hline(yintercept=77,linetype= 2, col = "orange3", linewidth=0.8)+
+  # geom_hline(yintercept=100,linetype= 0)+
+  scale_y_continuous(limits=c(65,80),breaks = seq(60,85, by=2)) + 
+  facet_grid2(analy_param ~ factor(Batch, batch_levels),scales="free_y", strip = strip_x )+
+  xlab("Months")+
+  ylab("% w/w") +
+    theme(strip.text.x = element_text(family="Merck",  size = 12, colour = "#503291"),
+          strip.text.y = element_text(family="Merck",  size = 12, colour = "#503291"),
+          axis.text.x = element_text(size = 10, angle=0),
+          axis.text.y = element_text(size = 12, angle=0),
+          axis.title.x = element_text(size = 12),
+          axis.title.y = element_text(size = 12),
+          legend.position = "bottom", legend.background = element_rect(fill="transparent"), 
+          legend.direction = "horizontal", # "bottom"
+          legend.text=element_text(size=10),
+          legend.title =element_text(size=10),
+          strip.background =element_rect(fill="#b4dc96"),
+          panel.background  = element_rect(fill = "#f2f2f2"),
+          panel.spacing.y =  unit(2, "mm", data = NULL),
+          panel.border = element_rect(colour = "gray", fill=NA, size=1))+
+    scale_color_manual(values = c("#ffc832","#ff4d00"), name ="Storage conditions")
+
+ggsave("ltbh_assay2.svg",  last_plot(),units = "cm", width = 20, height = 10)
+
 #--------- Water
 
 ltbh_long %>% 
@@ -93,10 +139,10 @@ ltbh_long %>%
   # geom_hline(yintercept=77,linetype= 1, col = "orange", linewidth=0.4)+
   # geom_hline(yintercept=100,linetype= 0)+
   # scale_y_continuous(breaks = seq(95,105, by=1)) + 
-  facet_grid(analy_param ~ Batch,  scales="free_y")+
+  facet_grid2(analy_param ~ factor(Batch, batch_levels),scales="free_y", strip = strip_x )+
   xlab("Months")+
   ylab("% w/w") +
-  theme(strip.text.x = element_text(family="Merck",  size = 14, colour = "#503291"),
+  theme(strip.text.x = element_text(family="Merck",  size = 12, colour = "#503291"),
         strip.text.y = element_text(family="Merck",  size = 12, colour = "#503291"),
         axis.text.x = element_text(size = 10, angle=0),
         axis.text.y = element_text(size = 12, angle=0),
@@ -129,11 +175,11 @@ ltbh_long %>%
   # geom_hline(yintercept=77,linetype= 1, col = "orange", linewidth=0.4)+
   # geom_hline(yintercept=100,linetype= 0)+
   # scale_y_continuous(breaks = seq(0,0.6, by=0.1)) + 
-  facet_grid(analy_param ~ Batch, labeller = label_wrap_gen(width = 5,multi_line = TRUE))+
+  facet_grid2(analy_param ~ factor(Batch, batch_levels),scales="free_y", strip = strip_x,labeller = label_wrap_gen(width = 5,multi_line = TRUE))+
   xlab("Months")+
   ylab("% w/w") +
   ylim(0,0.6)+
-  theme(strip.text.x = element_text(family="Merck",  size = 14, colour = "#503291"),
+  theme(strip.text.x = element_text(family="Merck",  size = 12, colour = "#503291"),
         strip.text.y = element_text(family="Merck",  size = 12, colour = "#503291"),
         axis.text.x = element_text(size = 10, angle=0),
         axis.text.y = element_text(size = 12, angle=0),
@@ -165,10 +211,10 @@ ltbh_long %>%
   scale_x_continuous(expand=c(0,0), limits=c(-1,25),breaks = c(0,3,6,9,12,18,24)) + 
   # geom_hline(yintercept=5,linetype= 2, col = "orange3", linewidth=0.8)+)+
   geom_hline(data=hline_dat, aes(yintercept=new_limit),linetype= 2, col = "orange3", linewidth=0.8)+
-  facet_grid(analy_param ~ Batch, scales = "free_y")+
+  facet_grid2(analy_param ~ factor(Batch, batch_levels),scales="free_y", strip = strip_x )+
   xlab("Months")+
   ylab("% w/w") +
-  theme(strip.text.x = element_text(family="Merck",  size = 14, colour = "#503291"),
+  theme(strip.text.x = element_text(family="Merck",  size = 12, colour = "#503291"),
         strip.text.y = element_text(family="Merck",  size = 12, colour = "#503291"),
         axis.text.x = element_text(size = 10, angle=0),
         axis.text.y = element_text(size = 12, angle=0),
@@ -203,11 +249,11 @@ ltbh_long %>%
   # geom_hline(yintercept=77,linetype= 1, col = "orange", linewidth=0.4)+
   # geom_hline(yintercept=100,linetype= 0)+
   # scale_y_continuous(breaks = seq(95,105, by=1)) + 
-  facet_grid(analy_param ~ Batch,  scales="free_y",labeller = label_wrap_gen(width = 8,multi_line = TRUE))+
+  facet_grid2(analy_param ~ factor(Batch, batch_levels),scales="free_y", strip = strip_x ,labeller = label_wrap_gen(width = 8,multi_line = TRUE))+
   ylim(94.8,100)+
   xlab("Months")+
   ylab("% area") +
-  theme(strip.text.x = element_text(family="Merck",  size = 14, colour = "#503291"),
+  theme(strip.text.x = element_text(family="Merck",  size = 12, colour = "#503291"),
         strip.text.y = element_text(family="Merck",  size = 12, colour = "#503291"),
         axis.text.x = element_text(size = 10, angle=0),
         axis.text.y = element_text(size = 12, angle=0),

@@ -1,5 +1,5 @@
-ltbh_raw <- read_excel("C:/Users/M291711/OneDrive - MerckGroup/SAP/SAP GUI/LTBH_L2_Layout.xlsx") #Layout STAB LTBH plus Lev
-
+# ltbh_raw <- read_excel("C:/Users/M291711/OneDrive - MerckGroup/SAP/SAP GUI/LTBH_L2_Layout.xlsx") #Layout STAB LTBH plus Lev
+ltbh_raw <- read_excel("LTBH_stabApr26.xlsx") #Layout STAB LTBH plus Lev
 #Überflüssige Spalten
 wegdamit <- c(  "Material description",
                "Last goods receipt")  # , "Deviations from analytical method", "UD code"
@@ -22,7 +22,7 @@ ltbh <- ltbh_raw %>%
   # filter((str_detect(`Inspection Lot`, "^16|^89") & !is.na(temp)) ) %>%
   filter(!str_detect(Batch, "^VALIDUM")) %>% 
   filter(!str_detect(`IL short text`, "ICP|Hyp|USD") | is.na(`IL short text`) ) %>% # 
-  filter(!(str_detect(`Inspection Lot`, "890000133358"))) # 3Mte 40°C -> wiso?
+  filter(!(str_detect(`Inspection Lot`, "890000133358|890000042203|890000042252"))) # 3Mte 40°C -> wiso?
 
 # mutate_at(c("Area% Cyanon, MSC2007362A","Area% any unspecified"),  as.numeric)  %>% 
 # mutate( `Area% any unspecified with Cyanon` = `Area% Cyanon, MSC2007362A` +`Area% any unspecified`) %>% 
